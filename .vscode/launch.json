@@ -5,15 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: 当前文件",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Launch Node",
             "type": "pwa-node",
             "request": "launch",
             "runtimeExecutable": "node",
-            "runtimeArgs": ["--loader", "ts-node/esm"/*, "--experimental-specifier-resolution=node"*/],
-            "args": ["${file}"],
+            "runtimeArgs": [
+                "--loader",
+                "ts-node/esm" /*, "--experimental-specifier-resolution=node"*/
+            ],
+            "args": [
+                "${file}"
+            ],
             "cwd": "${workspaceRoot}",
             "internalConsoleOptions": "openOnSessionStart",
-            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
             "console": "internalConsole",
             "outputCapture": "std",
         }
