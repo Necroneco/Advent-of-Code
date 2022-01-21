@@ -1,16 +1,24 @@
+import type {IGraph} from "./AStar.js"
 import {GridNode} from "./GridNode.js"
 import {diagonal, manhattan} from "./Heuristics.js"
 
-export class Graph {
+function calcCost(this: void, from: GridNode, to: GridNode): number {
+    // Take diagonal weight into consideration.
+    if (from && from.x != to.x && from.y != to.y) {
+        return to.weight * 1.41421
+    }
+    return to.weight
+}
+
+export class Graph implements IGraph<GridNode> {
     readonly heuristic: (this: void, node: GridNode, goal: GridNode) => number
+    readonly calcCost = calcCost
 
     // private readonly nodes: GridNode[]
-    readonly diagonal: boolean
+    private readonly diagonal: boolean
     private readonly grid: GridNode[][]
     readonly width: number
     readonly height: number
-
-    private dirtyNodes: GridNode[]
 
     /**
      * A graph memory structure
@@ -33,7 +41,6 @@ export class Graph {
                 // this.nodes.push(node)
             }
         }
-        this.dirtyNodes = []
     }
 
     /**
@@ -44,17 +51,6 @@ export class Graph {
         return this.grid[y]?.[x]
     }
 
-    cleanDirty(): void {
-        for (let i = 0; i < this.dirtyNodes.length; i++) {
-            this.dirtyNodes[i].clear()
-        }
-        this.dirtyNodes = []
-    }
-
-    markDirty(node: GridNode): void {
-        this.dirtyNodes.push(node)
-    }
-
     * neighbors(node: GridNode): Generator<GridNode, void> {
         const x = node.x
         const y = node.y
@@ -63,45 +59,38 @@ export class Graph {
 
         // West
         tile = this.getGrid(x - 1, y)
-        if (tile) yield tile
+        if (tile && tile.weight > 0) yield tile
 
         // East
         tile = this.getGrid(x + 1, y)
-        if (tile) yield tile
+        if (tile && tile.weight > 0) yield tile
 
         // South
         tile = this.getGrid(x, y - 1)
-        if (tile) yield tile
+        if (tile && tile.weight > 0) yield tile
 
         // North
         tile = this.getGrid(x, y + 1)
-        if (tile) yield tile
+        if (tile && tile.weight > 0) yield tile
 
         if (this.diagonal) {
             // Southwest
             tile = this.getGrid(x - 1, y - 1)
-            if (tile) yield tile
+            if (tile && tile.weight > 0) yield tile
 
             // Southeast
             tile = this.getGrid(x + 1, y - 1)
-            if (tile) yield tile
+            if (tile && tile.weight > 0) yield tile
 
             // Northwest
             tile = this.getGrid(x - 1, y + 1)
-            if (tile) yield tile
+            if (tile && tile.weight > 0) yield tile
 
             // Northeast
             tile = this.getGrid(x + 1, y + 1)
-            if (tile) yield tile
+            if (tile && tile.weight > 0) yield tile
         }
     }
-
-    // reset(): void {
-    //     this.dirtyNodes = []
-    //     for (let i = 0; i < this.nodes.length; i++) {
-    //         this.nodes[i].clear()
-    //     }
-    // }
 
     toString() {
         const graphString = []
