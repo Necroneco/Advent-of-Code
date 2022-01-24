@@ -1,5 +1,5 @@
 import countBy from "lodash-es/countBy.js"
-import {BinaryHeap} from "./BinaryHeap.js"
+import {BinaryHeap} from "../../utils/BinaryHeap.js"
 import {loadInput} from "../../utils/loadInput.js"
 
 async function Q1() {
