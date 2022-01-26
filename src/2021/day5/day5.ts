@@ -1,4 +1,5 @@
 import {loadInput} from "../../utils/loadInput.js"
+import {rangeInclude} from "../../utils/rangeInclude.js";
 
 class PuzzleMap {
     readonly map: number[][] = []
@@ -29,7 +30,7 @@ class PuzzleMap {
         } else if (Math.abs(x1 - x2) === Math.abs(y1 - y2)) {
             let x = x1
             const diffX = x1 > x2 ? -1 : 1
-            for (let y of range(y1, y2)) {
+            for (let y of rangeInclude(y1, y2)) {
                 const row = (this.map[y] ??= [])
                 row[x] = (row[x] ?? 0) + 1
                 if (row[x] === 2) {
@@ -72,18 +73,6 @@ class PuzzleMap {
                     ctx.fillRect(x * size, y * size, size, size)
                 }
             }
-        }
-    }
-}
-
-export function* range(a: number, b: number) {
-    if (a < b) {
-        for (let i = a; i <= b; i++) {
-            yield i
-        }
-    } else {
-        for (let i = a; i >= b; i--) {
-            yield i
         }
     }
 }

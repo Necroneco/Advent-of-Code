@@ -1,5 +1,5 @@
-const min = 145852
-const max = 616942
+import {loadInput} from "../../utils/loadInput.js"
+import {rangeInclude} from "../../utils/rangeInclude.js";
 
 function hasDouble(n: number) {
     let last = n % 10
@@ -13,7 +13,6 @@ function hasDouble(n: number) {
     return false
 }
 
-
 function neverDecrease(n: number) {
     let last = Math.floor(n / 10 ** 5) % 10
     for (let i = 4; i >= 0; i--) {
@@ -26,15 +25,18 @@ function neverDecrease(n: number) {
     return true
 }
 
-function r2(n: number) {
-    // return (String(n).match(/(\d)\1+/g) || []).some(l => l.length === 2)
-    // return /((?<!0)00(?!0))|((?<!1)11(?!1))|((?<!2)22(?!2))|((?<!3)33(?!3))|((?<!4)44(?!4))|((?<!5)55(?!5))|((?<!6)66(?!6))|((?<!7)77(?!7))|((?<!8)88(?!8))|((?<!9)99(?!9))/.test(n.toString())
-    const sm = new SM(Math.floor(n / 10 ** 5) % 10)
-    for (let i = 4; i >= 0; i--) {
-        sm.input(Math.floor(n / (10 ** i)) % 10)
+async function Q1() {
+    const [min, max] = (await loadInput(import.meta.url)).trimEnd().split("-").map(Number)
+    let count = 0
+    for (const n of rangeInclude(min, max)) {
+        if (hasDouble(n) && neverDecrease(n)) {
+            count++
+        }
     }
-    return sm.state !== null
+    console.log(`Q1: ${count}`);
 }
+
+await Q1()
 
 class SM {
     state: number | null = null
@@ -68,16 +70,25 @@ class SM {
     }
 }
 
-console.log(r2(112233));
-console.log(r2(123444));
-console.log(r2(111122));
-
-
-let count = 0
-for (let n = min; n <= max; n++) {
-    if (hasDouble(n) && neverDecrease(n) && r2(n)) {
-        count++
+function r2(n: number) {
+    // return (String(n).match(/(\d)\1+/g) || []).some(l => l.length === 2)
+    // return /((?<!0)00(?!0))|((?<!1)11(?!1))|((?<!2)22(?!2))|((?<!3)33(?!3))|((?<!4)44(?!4))|((?<!5)55(?!5))|((?<!6)66(?!6))|((?<!7)77(?!7))|((?<!8)88(?!8))|((?<!9)99(?!9))/.test(n.toString())
+    const sm = new SM(Math.floor(n / 10 ** 5) % 10)
+    for (let i = 4; i >= 0; i--) {
+        sm.input(Math.floor(n / (10 ** i)) % 10)
     }
+    return sm.state !== null
 }
 
-console.log(count);
+async function Q2() {
+    const [min, max] = (await loadInput(import.meta.url)).trimEnd().split("-").map(Number)
+    let count = 0
+    for (const n of rangeInclude(min, max)) {
+        if (hasDouble(n) && neverDecrease(n) && r2(n)) {
+            count++
+        }
+    }
+    console.log(`Q2: ${count}`);
+}
+
+await Q2()

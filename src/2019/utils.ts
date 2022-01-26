@@ -1,4 +1,3 @@
-/** [0, length) */
 export function makeArray<U = number>(length: number, mapFn?: (value: number) => U): U[]
 /** [start, end] */
 export function makeArray<U = number>(start: number, end: number, mapFn?: (value: number) => U): U[]

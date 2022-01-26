@@ -1,20 +1,19 @@
-
-const enum ParamterMode {
+const enum ParameterMode {
     position = 0,
     immediate = 1,
     relative = 2,
 }
 
-function getMode1(op: number) {
-    return Math.floor(op / 100) % 10 as ParamterMode
+function getMode1(op: number): ParameterMode {
+    return Math.floor(op / 100) % 10 as ParameterMode
 }
 
-function getMode2(op: number) {
-    return Math.floor(op / 1000) % 10 as ParamterMode
+function getMode2(op: number): ParameterMode {
+    return Math.floor(op / 1000) % 10 as ParameterMode
 }
 
-function getMode3(op: number) {
-    return Math.floor(op / 10000) % 10 as ParamterMode
+function getMode3(op: number): ParameterMode {
+    return Math.floor(op / 10000) % 10 as ParameterMode
 }
 
 function dump(memory: number[], pointer: number) {
@@ -29,7 +28,7 @@ export class AsciiCapable {
     }
 
     writeLine(line: string) {
-        console.log(`[${line}]`);
+        console.log(`<== ${line}`);
         line.split("").forEach(v => {
             this.computer.run(v.charCodeAt(0))
         })
@@ -69,29 +68,30 @@ export class IntcodeComputer {
         return this.outputs.splice(0, this.outputs.length)
     }
 
-    private readMemory(position: number, mode: ParamterMode) {
+    private readMemory(position: number, mode: ParameterMode) {
         switch (mode) {
-            case ParamterMode.relative:
+            case ParameterMode.relative:
                 return this.memory[position + this.relativeBase] ?? 0
-            case ParamterMode.immediate:
+            case ParameterMode.immediate:
                 return position
-            case ParamterMode.position:
+            case ParameterMode.position:
             default:
                 return this.memory[position] ?? 0
         }
     }
 
-    private writeMemory(position: number, mode: ParamterMode, value: number) {
+    private writeMemory(position: number, mode: ParameterMode, value: number) {
         if (isNaN(value)) {
             throw new Error("非法数据")
         }
         switch (mode) {
-            case ParamterMode.relative:
+            case ParameterMode.relative:
                 this.memory[position + this.relativeBase] = value
-            case ParamterMode.position:
+            // fall through
+            case ParameterMode.position:
                 this.memory[position] = value
                 break
-            case ParamterMode.immediate:
+            case ParameterMode.immediate:
             default:
                 throw new Error("writeMemory wrong mode")
         }
@@ -265,13 +265,13 @@ export class IntcodeComputer {
         }
     }
 
-    private printV(param: number, mode: ParamterMode, value: number) {
+    private printV(param: number, mode: ParameterMode, value: number) {
         switch (mode) {
-            case ParamterMode.immediate:
+            case ParameterMode.immediate:
                 return `${value}`
-            case ParamterMode.relative:
+            case ParameterMode.relative:
                 return `${value}(memory[${this.relativeBase}+${param}])`
-            case ParamterMode.position:
+            case ParameterMode.position:
             default:
                 return `${value}(memory[${param}])`
         }
