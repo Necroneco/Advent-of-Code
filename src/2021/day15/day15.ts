@@ -1,5 +1,4 @@
 import {loadInput} from "../../utils/loadInput.js"
-import {searchPath} from "./Pathfinding/AStar.js"
 import {Graph} from "./Pathfinding/Graph.js";
 
 async function Q1() {
@@ -7,7 +6,7 @@ async function Q1() {
     const lines = input.trim().split("\n")
 
     const graph = new Graph(lines.map(line => line.split("").map(Number)))
-    const path = searchPath(graph, graph.getGrid(0, 0)!, graph.getGrid(graph.width - 1, graph.height - 1)!)
+    const path = graph.searchPath(graph.getGrid(0, 0)!, graph.getGrid(graph.width - 1, graph.height - 1)!)
     console.log(`Q1: ${path.reduce((s, a) => s + a.weight, 0)}`);
 }
 
@@ -34,7 +33,7 @@ async function Q2() {
     }
 
     const graph = new Graph(grid)
-    const path = searchPath(graph, graph.getGrid(0, 0)!, graph.getGrid(graph.width - 1, graph.height - 1)!)
+    const path = graph.searchPath(graph.getGrid(0, 0)!, graph.getGrid(graph.width - 1, graph.height - 1)!)
     console.log(`Q2: ${path.reduce((s, a) => s + a.weight, 0)}`);
 }
 

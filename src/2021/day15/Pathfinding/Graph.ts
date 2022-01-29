@@ -1,20 +1,8 @@
-import type {IGraph} from "./AStar.js"
+import {IGraph, searchPath} from "../../../utils/AStar.js";
 import {GridNode} from "./GridNode.js"
 import {diagonal, manhattan} from "./Heuristics.js"
 
-function calcCost(this: void, from: GridNode, to: GridNode): number {
-    // Take diagonal weight into consideration.
-    if (from && from.x != to.x && from.y != to.y) {
-        return to.weight * 1.41421
-    }
-    return to.weight
-}
-
 export class Graph implements IGraph<GridNode> {
-    readonly heuristic: (this: void, node: GridNode, goal: GridNode) => number
-    readonly calcCost = calcCost
-
-    // private readonly nodes: GridNode[]
     private readonly diagonal: boolean
     private readonly grid: GridNode[][]
     readonly width: number
@@ -31,7 +19,6 @@ export class Graph implements IGraph<GridNode> {
         this.diagonal = !!options.diagonal
         this.width = gridIn[0].length
         this.height = gridIn.length
-        this.heuristic = this.diagonal ? diagonal : manhattan
         this.grid = []
         for (let y = 0; y < gridIn.length; y++) {
             this.grid[y] = []
@@ -40,6 +27,27 @@ export class Graph implements IGraph<GridNode> {
                 this.grid[y][x] = new GridNode(x, y, row[x])
                 // this.nodes.push(node)
             }
+        }
+
+        this.heuristic = this.diagonal ? diagonal : manhattan
+    }
+
+    searchPath(start: GridNode, end: GridNode): GridNode[] {
+        return searchPath<GridNode>({
+            calcCost: GridNode.calcCost,
+            neighbors: node => this.neighbors(node),
+            heuristic: this.diagonal ? diagonal : manhattan,
+        }, start, end)
+    }
+
+    heuristic: (node: GridNode, goal: GridNode) => number
+
+    calcCost(from: GridNode, to: GridNode): number {
+        // Take diagonal weight into consideration.
+        if (from.x != to.x && from.y != to.y) {
+            return to.weight * 1.41421
+        } else {
+            return to.weight
         }
     }
 

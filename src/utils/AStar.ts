@@ -1,58 +1,61 @@
 import {BinaryHeap} from "./BinaryHeap.js"
 
-export interface AStarSearchOptions<N extends IGridNode> {
-    closest?: boolean
-    heuristic?: (this: void, node: N, goal: N) => number
-    calcCost?: (from: N, to: N) => number
+export interface IGraph<N extends object> {
+    heuristic: (node: N, goal: N) => number
+    calcCost: (from: N, to: N) => number
+    neighbors: (node: N) => Iterable<N>
 }
 
-export interface IGridNode {
+export interface AStarSearchOptions {
+    closest?: boolean
+}
+
+interface INode<T = object> {
+    value: T
     f: number
     g: number
     h: number
     visited: boolean
     closed: boolean
-    parent?: IGridNode
+    parent?: INode<T>
 }
 
-function resetGridNode(node: IGridNode) {
-    node.f = 0
-    node.g = 0
-    node.h = 0
-    node.visited = false
-    node.closed = false
-    node.parent = undefined
-}
-
-export interface IGraph<N extends IGridNode> {
-    readonly heuristic: (this: void, node: N, goal: N) => number
-    readonly calcCost: (this: void, from: N, to: N) => number
-    neighbors(node: N): Iterable<N>
+function createNodesMap<N extends object>(): (n: N) => INode<N> {
+    const nodeMap = new WeakMap<N, INode<N>>()
+    return (n: N) => {
+        let node = nodeMap.get(n)
+        if (!node) {
+            node = {
+                visited: false,
+                f: 0, g: 0, h: 0,
+                closed: false,
+                value: n,
+            }
+            nodeMap.set(n, node)
+        }
+        return node
+    }
 }
 
 /**
  * Perform an A* Search on a graph given a start and end node.
- * @param {IGraph} graph
- * @param {IGridNode} start
- * @param {IGridNode} end
+ * @param graph
+ * @param {object} start
+ * @param {object} end
  * @param {Object} [options]
  * @param {boolean} [options.closest] Specifies whether to return the path to the closest node if the target is unreachable.
  */
-export function searchPath<G extends IGraph<N>, N extends IGridNode>(graph: G, start: N, end: N, options?: AStarSearchOptions<N>): N[] {
-    const dirtyNodes: N[] = []
-    const result = _searchPath(graph, start, end, options, dirtyNodes)
-    dirtyNodes.forEach(resetGridNode)
-    return result
-}
+export function searchPath<T extends object>(graph: IGraph<T>, start: T, end: T, {closest}: AStarSearchOptions = {}): T[] {
+    const getNode = createNodesMap<T>()
+    const startNode = getNode(start)
 
-function _searchPath<G extends IGraph<N>, N extends IGridNode>(graph: G, start: N, end: N, {closest = false, heuristic = graph.heuristic, calcCost = graph.calcCost}: AStarSearchOptions<N> = {}, dirtyNodes: N[]): N[] {
-    const openHeap = new BinaryHeap<N>(node => node.f)
-    let closestNode = start // set the start node to be the closest if required
+    const openHeap = new BinaryHeap<INode<T>>(node => node.f)
 
-    start.h = heuristic(start, end)
-    dirtyNodes.push(start)
+    let closestNode = startNode // set the start node to be the closest if required
+    startNode.h = graph.heuristic(start, end)
+    // dirtyNodes.push(start)
 
-    openHeap.push(start)
+    openHeap.push(startNode)
 
     while (openHeap.size() > 0) {
 
@@ -60,7 +63,7 @@ function _searchPath<G extends IGraph<N>, N extends IGridNode>(graph: G, start: 
         const currentNode = openHeap.pop()!
 
         // End case -- result has been found, return the traced path.
-        if (currentNode === end) {
+        if (currentNode.value === end) {
             return pathTo(currentNode)
         }
 
@@ -68,7 +71,8 @@ function _searchPath<G extends IGraph<N>, N extends IGridNode>(graph: G, start: 
         currentNode.closed = true
 
         // Find all neighbors for the current node.
-        for (let neighbor of graph.neighbors(currentNode)) {
+        for (const n of graph.neighbors(currentNode.value)) {
+            const neighbor = getNode(n)
             if (neighbor.closed) {
                 // Not a valid node to process, skip to next neighbor.
                 continue
@@ -76,7 +80,7 @@ function _searchPath<G extends IGraph<N>, N extends IGridNode>(graph: G, start: 
 
             // The g score is the shortest distance from start to current node.
             // We need to check if the path we have arrived at this neighbor is the shortest one we have seen yet.
-            const gScore = currentNode.g + calcCost(neighbor, currentNode)
+            const gScore = currentNode.g + graph.calcCost(neighbor.value, currentNode.value)
             const beenVisited = neighbor.visited
 
             if (!beenVisited || gScore < neighbor.g) {
@@ -84,10 +88,10 @@ function _searchPath<G extends IGraph<N>, N extends IGridNode>(graph: G, start: 
                 // Found an optimal (so far) path to this node.  Take score for node to see how good it is.
                 neighbor.visited = true
                 neighbor.parent = currentNode
-                neighbor.h = neighbor.h || heuristic(neighbor, end)
+                neighbor.h = neighbor.h || graph.heuristic(neighbor.value, end)
                 neighbor.g = gScore
                 neighbor.f = neighbor.g + neighbor.h
-                dirtyNodes.push(neighbor)
+                // dirtyNodes.push(neighbor)
                 if (closest) {
                     // If the neighbour is closer than the current closestNode
                     // or if it's equally close but has a cheaper path than the current closest node
@@ -102,7 +106,7 @@ function _searchPath<G extends IGraph<N>, N extends IGridNode>(graph: G, start: 
                     openHeap.push(neighbor)
                 } else {
                     // Already seen the node, but since it has been rescored we need to reorder it in the heap
-                    openHeap.bubbleUp(openHeap.content.indexOf(neighbor))
+                    openHeap._bubbleUp(openHeap.content.indexOf(neighbor))
                 }
             }
         }
@@ -116,12 +120,12 @@ function _searchPath<G extends IGraph<N>, N extends IGridNode>(graph: G, start: 
     return []
 }
 
-function pathTo<N extends IGridNode>(node: N): N[] {
+function pathTo<N extends object>(node: INode<N>): N[] {
     let curr = node
     const path: N[] = []
     while (curr.parent) {
-        path.unshift(curr)
-        curr = curr.parent as N
+        path.unshift(curr.value)
+        curr = curr.parent
     }
     return path
 }

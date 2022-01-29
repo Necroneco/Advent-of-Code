@@ -1,16 +1,16 @@
-import type {IGridNode} from "./AStar.js"
-
-export class GridNode implements IGridNode {
-    f = 0
-    g = 0
-    h = 0
-    visited = false
-    closed = false
-    parent?: GridNode
-
+export class GridNode {
     constructor(readonly x: number,
                 readonly y: number,
                 readonly weight: number) {
+    }
+
+    static calcCost(this: void, from: GridNode, to: GridNode): number {
+        // Take diagonal weight into consideration.
+        if (from.x != to.x && from.y != to.y) {
+            return to.weight * 1.41421
+        } else {
+            return to.weight
+        }
     }
 
     toString() {
