@@ -1,6 +1,6 @@
 export async function loadInput(importMetaUrl: string): Promise<string> {
     let input: string
-    if (typeof fetch === "function") {
+    if (globalThis.window) {
         input = await (await fetch("./input.txt")).text()
     } else {
         const path = await import("path")
