@@ -5,6 +5,16 @@
 .idea/
 
 
+.DS_Store
+/.build
+/Packages
+xcuserdata/
+DerivedData/
+.swiftpm/configuration/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+
+
 # https://github.com/github/gitignore/blob/main/Node.gitignore
 # Logs
 logs

@@ -21,7 +21,7 @@
             "runtimeExecutable": "node",
             "runtimeArgs": [
                 "--loader",
-                "ts-node/esm" /*, "--experimental-specifier-resolution=node"*/
+                "ts-node/esm"
             ],
             "args": [
                 "${file}"
@@ -33,7 +33,55 @@
                 "node_modules/**"
             ],
             "console": "internalConsole",
-            "outputCapture": "std",
+            "outputCapture": "std"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:Advent-of-Code}",
+            "name": "Debug MyCLI",
+            "program": "${workspaceFolder:Advent-of-Code}/.build/debug/MyCLI",
+            "preLaunchTask": "swift: Build Debug MyCLI"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:Advent-of-Code}",
+            "name": "Release MyCLI",
+            "program": "${workspaceFolder:Advent-of-Code}/.build/release/MyCLI",
+            "preLaunchTask": "swift: Build Release MyCLI"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:Advent-of-Code}",
+            "name": "Debug App",
+            "program": "${workspaceFolder:Advent-of-Code}/.build/debug/App",
+            "preLaunchTask": "swift: Build Debug App"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:Advent-of-Code}",
+            "name": "Release App",
+            "program": "${workspaceFolder:Advent-of-Code}/.build/release/App",
+            "preLaunchTask": "swift: Build Release App"
         }
     ]
 }
